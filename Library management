@@ -1,0 +1,143 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+// Structure to represent a book
+typedef struct Book {
+    char title[100];
+    char author[100];
+    int year;
+} Book;
+
+// Function to remove special characters from a string
+void remove_special_chars(char *str) {
+    int i, j;
+    for (i = 0, j = 0; str[i]; i++) {
+        if (isalnum(str[i]) || isspace(str[i])) {
+            str[j++] = str[i];
+        }
+    }
+    str[j] = '\0';
+}
+
+// Function to compare two book authors in alphabetical order
+int compare_authors(const void *a, const void *b) {
+    Book *bookA = (Book *)a;
+    Book *bookB = (Book *)b;
+    char authorA[100];
+    char authorB[100];
+    strcpy(authorA, bookA->author);
+    strcpy(authorB, bookB->author);
+    remove_special_chars(authorA);
+    remove_special_chars(authorB);
+    return strcasecmp(authorA, authorB);
+}
+
+// Function to compare two books based on their published years
+int compare_years(const void *a, const void *b) {
+    Book *bookA = (Book *)a;
+    Book *bookB = (Book *)b;
+    if (bookA->year == bookB->year) {
+        char authorA[100];
+        char authorB[100];
+        strcpy(authorA, bookA->author);
+        strcpy(authorB, bookB->author);
+        remove_special_chars(authorA);
+        remove_special_chars(authorB);
+        return strcasecmp(authorA, authorB);
+    } else {
+        return bookA->year - bookB->year;
+    }
+}
+
+// Function to sort a list of books by author names
+void sort_item_list_by_author(Book *item_list, int num_items) {
+    qsort(item_list, num_items, sizeof(Book), compare_authors);
+}
+
+// Function to add new items to a list of books and sort them by author names
+void add_new_items(Book *item_list, int *num_items, Book *new_items, int num_new_items) {
+    // Add new items to the existing list
+    for (int i = 0; i < num_new_items; i++) {
+        item_list[*num_items + i] = new_items[i];
+    }
+    *num_items += num_new_items;
+
+    // Sort the updated list by author names
+    sort_item_list_by_author(item_list, *num_items);
+}
+
+// Function to sort a list of books by published years
+void sort_items_by_published_year(Book *item_list, int num_items) {
+    qsort(item_list, num_items, sizeof(Book), compare_years);
+}
+
+int main() {
+    int num_books = 0; // Number of books in the list
+    Book books[100]; // Array to store the books
+
+    while (1) {
+        int choice;
+        printf("1. Add book\n");
+        printf("2. Sort books by author\n");
+        printf("3. Sort books by published year\n");
+        printf("4. Display books\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1: {
+                // Add book
+                Book new_book;
+                printf("Enter book title: ");
+                scanf(" %[^\n]", new_book.title);
+                printf("Enter book author: ");
+                scanf(" %[^\n]", new_book.author);
+                printf("Enter published year: ");
+                scanf("%d", &new_book.year);
+
+                // Add new book to the list and sort by author
+                Book new_books[] = {new_book};
+                add_new_items(books, &num_books, new_books, 1);
+                printf("Book added successfully!\n");
+                break;
+            }
+            case 2: {
+                // Sort books by author
+                sort_item_list_by_author(books, num_books);
+                printf("Books sorted by author!\n");
+                break;
+            }
+            case 3: {
+                // Sort books by published year
+                sort_items_by_published_year(books, num_books);
+                printf("Books sorted by published year!\n");
+                break;
+            }
+            case 4: {
+                // Display books
+                printf("Books:\n");
+                for (int i = 0; i < num_books; i++) {
+                    printf("Title: %s\n", books[i].title);
+                    printf("Author: %s\n", books[i].author);
+                    printf("Published Year: %d\n", books[i].year);
+                    printf("------------------------\n");
+                }
+                break;
+            }
+            case 5: {
+                // Exit
+                printf("Goodbye!\n");
+                exit(0);
+            }
+            default: {
+                printf("Invalid choice. Please try again.\n");
+                break;
+            }
+        }
+    }
+
+    return 0;
+}
